@@ -1,5 +1,9 @@
 # says
 
+[![CI](https://github.com/plutado/says-tv/actions/workflows/ci.yml/badge.svg)](https://github.com/plutado/says-tv/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/downloads/)
+
 says is a local-first podcast research tool. You give it the podcast feeds you
 follow. It fetches new episodes, uses the transcript the publisher provides (or
 transcribes the audio on your machine when there is none), and builds a
@@ -14,6 +18,62 @@ the moment in the audio where the passage starts.
 that publish transcripts, and for transcript files you import yourself. Local
 transcription is wired in but lightly exercised. Expect the CLI and database
 schema to change before 1.0. See [ROADMAP.md](ROADMAP.md).
+
+## Example
+
+This is real output from the current code. The two shows, their hosts and
+guests, and every line of dialogue are the invented fixtures in
+[tests/fixtures/](tests/fixtures/). For this run the fixture feeds were served
+from a local `python -m http.server`, one show labeled `left` and one `right`
+in `says.toml`. Audio links point at reserved example domains.
+
+```console
+$ says ingest
+The Example Commons Hour: 2 episodes (2 new), 1 provided transcripts, 0 local transcripts
+Fictional Frontier Report: 1 episodes (1 new), 1 provided transcripts, 0 local transcripts
+
+$ says search "data center water" --by-perspective
+== left ==
+[00:01] Host Riley | The Example Commons Hour (left) | Ep. 12: Server Farms and the River
+    "Welcome back to the Example Commons Hour. Today we are talking about data centers and water."
+    https://media.example.com/commons/ep12.mp3#t=1
+[01:15] Dana Example | The Example Commons Hour (left) | Ep. 12: Server Farms and the River
+    "A large data center can draw as much water for cooling as a small town uses in summer."
+    https://media.example.com/commons/ep12.mp3#t=75
+== right ==
+[02:10] Morgan Placeholder | Fictional Frontier Report (right) | Building Out the Desert
+    "Data centers bring construction jobs first, and the tax base follows. Water recycling systems mean the cooling load is smaller than critics claim."
+    https://cdn.example.org/frontier/desert.m4a?token=abc#t=130
+
+$ says stats
+shows        2
+episodes     3
+transcripts  2
+segments     6
+```
+
+Each hit carries the speaker (from the publisher's transcript), the show and
+your label for it, the episode, and an audio link with a `#t=` offset to the
+moment the passage starts.
+
+Export produces citable Markdown. Here the cap is lowered to 100 characters to
+show truncation:
+
+```console
+$ says export cooling --format markdown --max-chars 100
+```
+
+```markdown
+# Quotes: cooling
+
+> A large data center can draw as much water for cooling as a small town uses in summer.
+>
+> Dana Example, *The Example Commons Hour*, "Ep. 12: Server Farms and the River" (2026-03-03), at [01:15](https://media.example.com/commons/ep12.mp3#t=75) `left`
+
+> Data centers bring construction jobs first, and the tax base follows. Water recycling systems mean…
+>
+> Morgan Placeholder, *Fictional Frontier Report*, "Building Out the Desert" (2026-03-05), at [02:10](https://cdn.example.org/frontier/desert.m4a?token=abc#t=130) `right`
+```
 
 ## Who it is for
 
@@ -113,6 +173,32 @@ uv run ruff format --check
 
 Tests use only invented feeds and transcripts under `tests/fixtures/`, and a
 fake transcriber, so they need no network access and no speech model.
+
+## What's next
+
+The full plan, with task-level estimates, is in [ROADMAP.md](ROADMAP.md).
+Headline milestones, in working hours for one developer:
+
+- **Reliable ingestion of provided transcripts** (12 to 16 h): conditional GET
+  and backoff, polite per-host fetching, Atom and untimed text transcripts,
+  a `says doctor` command.
+- **Local transcription backends** (14 to 20 h): a fuller faster-whisper
+  backend with word timestamps, a whisper.cpp backend, a transcript cache, and
+  clear marking of ASR-derived quotes.
+- **Speakers and guests** (14 to 20 h): guest names from show notes and
+  `podcast:person`, optional diarization, and a `says speakers` command for
+  naming speakers yourself.
+- **Topics and better search** (12 to 18 h): context around hits, `NEAR` and
+  exclusion terms, saved topic searches, optional semantic search.
+- **Quote export formats** (8 to 12 h): CSV, citation templates, and a
+  "balanced pull" that takes the top hits from each perspective label.
+- **Local web UI** (16 to 24 h): a 127.0.0.1-only search page with
+  side-by-side perspective columns and an audio player that seeks to the quote.
+- **Operations and 1.0 hardening** (16 to 24 h): scheduled ingestion, schema
+  migrations, packaging for `uv tool install`, parser fuzz tests, and a
+  10,000-episode performance check.
+
+Total remaining planned work is roughly 90 to 135 hours.
 
 ## Documentation
 
