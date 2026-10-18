@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test feed. Every show, person, and line of dialogue is invented. -->
+<rss version="2.0"
+     xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd"
+     xmlns:podcast="https://podcastindex.org/namespace/1.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>The Example Commons Hour</title>
+    <link>https://commons.example.com/</link>
+    <description>An invented show used only in tests.</description>
+    <item>
+      <title>Ep. 12: Server Farms and the River</title>
+      <guid isPermaLink="false">commons-ep-12</guid>
+      <pubDate>Tue, 03 Mar 2026 09:00:00 -0500</pubDate>
+      <link>https://commons.example.com/episodes/12</link>
+      <enclosure url="https://media.example.com/commons/ep12.mp3" length="1000" type="audio/mpeg"/>
+      <itunes:duration>01:02:03</itunes:duration>
+      <content:encoded><![CDATA[<p>Guest: Dana Example, hydrologist.</p>]]></content:encoded>
+      <podcast:transcript url="https://media.example.com/commons/ep12.txt" type="text/plain"/>
+      <podcast:transcript url="https://media.example.com/commons/ep12.vtt" type="text/vtt" language="en"/>
+    </item>
+    <item>
+      <title>Ep. 11: Grid Week</title>
+      <guid>commons-ep-11</guid>
+      <pubDate>Tue, 24 Feb 2026 09:00:00 -0500</pubDate>
+      <enclosure url="https://media.example.com/commons/ep11.mp3" length="1000" type="audio/mpeg"/>
+      <itunes:duration>2710</itunes:duration>
+    </item>
+  </channel>
+</rss>

@@ -1,0 +1,32 @@
+# Example says config. Copy to ./says.toml and replace these with the feeds you follow.
+#
+# Every show below is fictional and every URL uses a reserved example domain,
+# so `says ingest` against this file will report fetch errors. That is expected.
+#
+# "perspective" is your own label. says does not assign, infer, or check it.
+# Use whatever scheme fits your research: left/center/right, industry/academic/
+# advocacy, local/national, or anything else.
+
+[settings]
+database = "data/says.db"      # relative to this file
+audio_cache = "data/audio"     # only used when local transcription is enabled
+quote_max_chars = 280          # cap for every exported or displayed quote
+transcriber = "none"           # or "faster-whisper" after `uv sync --extra whisper`
+
+[[show]]
+name = "The Example Commons Hour"
+feed_url = "https://feeds.example.com/commons-hour.xml"
+perspective = "left"
+tags = ["environment", "local-government"]
+
+[[show]]
+name = "Placeholder Policy Podcast"
+feed_url = "https://feeds.example.com/placeholder-policy.xml"
+perspective = "center"
+tags = ["policy"]
+
+[[show]]
+name = "Fictional Frontier Report"
+feed_url = "https://feeds.example.org/frontier-report.xml"
+perspective = "right"
+tags = ["energy", "business"]

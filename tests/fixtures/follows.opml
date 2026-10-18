@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<opml version="2.0">
+  <head><title>Synthetic subscriptions</title></head>
+  <body>
+    <outline text="Podcasts">
+      <outline type="rss" text="The Example Commons Hour" xmlUrl="https://feeds.example.com/commons.xml"/>
+      <outline type="rss" title="Fictional Frontier Report" text="FFR" xmlUrl="https://feeds.example.org/frontier.xml"/>
+      <outline type="link" text="Not a feed" url="https://example.net/"/>
+    </outline>
+  </body>
+</opml>

@@ -1,0 +1,8 @@
+{
+  "version": "1.0.0",
+  "segments": [
+    {"speaker": "Avery Invented", "startTime": 5.0, "endTime": 9.5, "body": "Zoning boards rarely see the full water budget."},
+    {"speaker": "Avery Invented", "startTime": 9.5, "endTime": 12.0, "body": "That should change."},
+    {"startTime": 20.0, "endTime": 22.0, "body": "   "}
+  ]
+}

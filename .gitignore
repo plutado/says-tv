@@ -1,0 +1,37 @@
+# Python / uv
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+# Your personal feed list; see examples/says.example.toml
+says.toml
+
+# Local data: index, transcripts, audio caches
+data/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+audio/
+*.mp3
+*.m4a
+*.aac
+*.ogg
+*.opus
+*.wav
+*.flac
+
+# Editors / OS
+.DS_Store
+.idea/
+.vscode/

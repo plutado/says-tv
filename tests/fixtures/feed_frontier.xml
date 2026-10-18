@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Synthetic test feed. Every show, person, and line of dialogue is invented. -->
+<rss version="2.0" xmlns:podcast="https://podcastindex.org/namespace/1.0">
+  <channel>
+    <title>Fictional Frontier Report</title>
+    <link>https://frontier.example.org/</link>
+    <item>
+      <title>Building Out the Desert</title>
+      <guid>frontier-2026-03-05</guid>
+      <pubDate>Thu, 05 Mar 2026 12:00:00 GMT</pubDate>
+      <link>https://frontier.example.org/shows/desert</link>
+      <enclosure url="https://cdn.example.org/frontier/desert.m4a?token=abc" length="1" type="audio/mp4"/>
+      <podcast:transcript url="https://cdn.example.org/frontier/desert.srt" type="application/x-subrip"/>
+    </item>
+  </channel>
+</rss>
