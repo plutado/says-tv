@@ -165,6 +165,7 @@ def ingest(
         if backend is None:
             _fail("--transcribe needs a backend; set settings.transcriber or pass --transcriber")
     exit_code = 0
+    reports = []
     with ctx.obj.store(cfg) as store:
         for s in shows:
             report = ingest_show(
@@ -175,10 +176,17 @@ def ingest(
                 max_transcribe=transcribe,
                 keep_audio=keep_audio,
             )
+            reports.append(report)
             typer.echo(report.summary())
             for err in report.errors:
                 typer.echo(f"  {err}", err=True)
                 exit_code = 2
+    unchanged = sum(r.feed_unchanged for r in reports)
+    failed = sum(r.feed_failed for r in reports)
+    typer.echo(
+        f"{len(reports)} feeds: {len(reports) - unchanged - failed} updated, "
+        f"{unchanged} unchanged, {failed} failed"
+    )
     raise typer.Exit(exit_code)
 
 

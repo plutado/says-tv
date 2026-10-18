@@ -31,6 +31,7 @@ in `says.toml`. Audio links point at reserved example domains.
 $ says ingest
 The Example Commons Hour: 2 episodes (2 new), 1 provided transcripts, 0 local transcripts
 Fictional Frontier Report: 1 episodes (1 new), 1 provided transcripts, 0 local transcripts
+2 feeds: 2 updated, 0 unchanged, 0 failed
 
 $ says search "data center water" --by-perspective
 == left ==
@@ -186,7 +187,7 @@ The full plan, with task-level estimates, is in [ROADMAP.md](ROADMAP.md).
 Headline milestones, in working hours for one developer:
 
 - **Reliable ingestion of provided transcripts** (12 to 16 h): conditional GET
-  and backoff, polite per-host fetching, Atom and untimed text transcripts,
+  (done) and backoff, polite per-host fetching, Atom and untimed text transcripts,
   a `says doctor` command (done).
 - **Local transcription backends** (14 to 20 h): a fuller faster-whisper
   backend with word timestamps, a whisper.cpp backend, a transcript cache, and

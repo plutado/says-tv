@@ -23,7 +23,8 @@ Milestone 0 is the current state of the repository.
 Publisher transcripts are cheaper and usually more accurate than local
 transcription, so they come first.
 
-- [ ] Conditional GET (ETag / Last-Modified) and per-feed backoff (3 h)
+- [x] Conditional GET (ETag / Last-Modified) (2 h)
+- [ ] Per-feed backoff (1 h)
 - [ ] Polite fetching: per-host rate limit, timeouts, retry with jitter (2 h)
 - [ ] Handle `podcast:transcript` with `rel="captions"` vs plain text; index
       untimed text/HTML transcripts with paragraph-level positions (3 h)

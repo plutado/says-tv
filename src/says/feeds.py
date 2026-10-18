@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import xml.etree.ElementTree as ET
+from dataclasses import dataclass
 from datetime import UTC
 from email.utils import parsedate_to_datetime
 
@@ -31,6 +32,23 @@ USER_AGENT = "says/0.1 (+local podcast research tool)"
 
 class FeedError(ValueError):
     """Raised when a document cannot be parsed as an RSS feed."""
+
+
+@dataclass(frozen=True)
+class FeedResponse:
+    """Result of a conditional feed fetch.
+
+    ``content`` is ``None`` when the server answered 304 Not Modified.
+    ``etag`` and ``last_modified`` are the validators to send next time.
+    """
+
+    content: bytes | None
+    etag: str | None = None
+    last_modified: str | None = None
+
+    @property
+    def not_modified(self) -> bool:
+        return self.content is None
 
 
 def parse_feed(xml_text: str | bytes) -> ParsedFeed:
@@ -136,13 +154,55 @@ def _text(parent: ET.Element, tag: str) -> str | None:
 def fetch(url: str, client: httpx.Client | None = None, timeout: float = 30.0) -> bytes:
     """Fetch a URL and return the body. The caller owns retries and scheduling."""
     owns_client = client is None
-    client = client or httpx.Client(
-        timeout=timeout, follow_redirects=True, headers={"User-Agent": USER_AGENT}
-    )
+    client = client or _client(timeout)
     try:
         response = client.get(url)
         response.raise_for_status()
         return response.content
+    finally:
+        if owns_client:
+            client.close()
+
+
+def _client(timeout: float) -> httpx.Client:
+    return httpx.Client(timeout=timeout, follow_redirects=True, headers={"User-Agent": USER_AGENT})
+
+
+def fetch_feed(
+    url: str,
+    *,
+    etag: str | None = None,
+    last_modified: str | None = None,
+    client: httpx.Client | None = None,
+    timeout: float = 30.0,
+) -> FeedResponse:
+    """Fetch a feed with a conditional GET.
+
+    Sends ``If-None-Match`` / ``If-Modified-Since`` when validators from a
+    previous fetch are given. A 304 response returns ``content=None`` and keeps
+    the validators (updated if the server sent new ones).
+    """
+    headers: dict[str, str] = {}
+    if etag:
+        headers["If-None-Match"] = etag
+    if last_modified:
+        headers["If-Modified-Since"] = last_modified
+    owns_client = client is None
+    client = client or _client(timeout)
+    try:
+        response = client.get(url, headers=headers)
+        if response.status_code == httpx.codes.NOT_MODIFIED:
+            return FeedResponse(
+                content=None,
+                etag=response.headers.get("ETag") or etag,
+                last_modified=response.headers.get("Last-Modified") or last_modified,
+            )
+        response.raise_for_status()
+        return FeedResponse(
+            content=response.content,
+            etag=response.headers.get("ETag"),
+            last_modified=response.headers.get("Last-Modified"),
+        )
     finally:
         if owns_client:
             client.close()

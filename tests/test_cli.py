@@ -14,7 +14,9 @@ runner = CliRunner()
 @pytest.fixture
 def config(tmp_path, monkeypatch):
     monkeypatch.delenv("SAYS_DATABASE", raising=False)
-    monkeypatch.setattr(ingest.feeds, "fetch", FakeFetcher())
+    fake = FakeFetcher()
+    monkeypatch.setattr(ingest.feeds, "fetch", fake)
+    monkeypatch.setattr(ingest.feeds, "fetch_feed", fake.feed)
     path = tmp_path / "says.toml"
     path.write_text('[settings]\ndatabase = "data/says.db"\nquote_max_chars = 60\n')
     return path

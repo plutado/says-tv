@@ -15,6 +15,19 @@ once it reaches 1.0.
   `PRAGMA integrity_check` and the FTS5 index matches its content table, the
   audio cache is writable, and the chosen transcriber's dependency imports.
   Prints one ok/warn/fail line per check and exits 1 on any failure.
+- Conditional GET for feeds: the ETag and Last-Modified from each successful
+  fetch are stored per show and sent as `If-None-Match` / `If-Modified-Since`
+  next time. A 304 response is reported as "feed unchanged (304)" and the feed
+  is not parsed. `says ingest` ends with a totals line of updated, unchanged,
+  and failed feeds.
+
+### Changed
+
+- Database schema version 2 adds `shows.etag` and `shows.last_modified`.
+  Version 1 databases are upgraded in place when opened.
+- Provided transcripts are now retried for every stored episode that has an
+  advertised transcript but none indexed, including when the feed is
+  unchanged, rather than only for episodes in the latest feed response.
 
 ## [0.1.0] - 2026-10-18
 

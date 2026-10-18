@@ -48,7 +48,12 @@ as such and tracked in [ROADMAP.md](../ROADMAP.md).
 
 ### Stage notes
 
-1. **Feed fetch** (`says.feeds`). One GET per feed. Feeds are untrusted input,
+1. **Feed fetch** (`says.feeds`). One conditional GET per feed: the ETag and
+   Last-Modified from the previous successful fetch are sent as
+   `If-None-Match` and `If-Modified-Since`. On 304 Not Modified the feed is
+   not parsed; the validators are kept, and stored episodes still missing a
+   provided transcript are retried. A server that stops sending validators
+   stops receiving conditional requests. Feeds are untrusted input,
    so XML is parsed with defusedxml, which rejects entity declarations. Only
    RSS 2.0 is supported today.
 2. **Episodes** (`says.store.Store.upsert_episode`). An episode is identified by
@@ -60,7 +65,8 @@ as such and tracked in [ROADMAP.md](../ROADMAP.md).
      picks by format preference: VTT, then SRT, then JSON. Untimed formats
      (text/plain, text/html) are skipped for now, because a quote without a
      timestamp cannot be cited to a moment. An episode that already has a
-     transcript is not re-fetched.
+     transcript is not re-fetched; any stored episode with an advertised
+     transcript but none indexed is retried on every ingest.
    - (b) Local: only when the user asks (`--transcribe N`) and a backend is
      configured. The backend interface is a single method,
      `transcribe(path) -> list[Segment]` (`says.transcribe.Transcriber`).
@@ -88,7 +94,7 @@ as such and tracked in [ROADMAP.md](../ROADMAP.md).
 ```
 shows
   id, feed_url (unique), name, perspective, tags (JSON list),
-  feed_title, last_fetched_at
+  feed_title, last_fetched_at, etag, last_modified
 
 episodes
   id, show_id -> shows, guid, title, published (ISO 8601), link, audio_url,
@@ -106,8 +112,15 @@ segments
 segments_fts                     FTS5 external content over segments(text, speaker)
 
 meta
-  key, value                     currently only schema_version
+  key, value                     currently only schema_version (now 2)
 ```
+
+Schema changes are applied when a `Store` opens the database. `SCHEMA`
+always describes the current version, so a new database is created at it
+directly. An older database gets the columns added since its version
+(`store.ADDED_COLUMNS`) and its `schema_version` updated. A database with a
+newer version than the code is left untouched, and `says doctor` reports it
+as a failure.
 
 `shows.name`, `perspective`, and `tags` are overwritten from the config on
 every command. The config is the source of truth for labels; changing a label
@@ -169,4 +182,5 @@ Per-show link templates are planned (ROADMAP M5).
 - No concurrency: feeds are fetched one after another.
 - The `Name:` speaker heuristic for SRT can mislabel lines that begin with a
   capitalized word followed by a colon (for example "Note: ...").
-- Schema migrations are not implemented yet; the schema is created if missing.
+- Schema migrations only add columns. There is no backup-before-migrate step
+  and no support for renaming or dropping columns yet (planned, M7).

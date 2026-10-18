@@ -12,7 +12,7 @@ from pathlib import Path
 
 from says.models import FeedEpisode, Segment, ShowConfig
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS meta (
@@ -27,7 +27,9 @@ CREATE TABLE IF NOT EXISTS shows (
     perspective     TEXT,
     tags            TEXT NOT NULL DEFAULT '[]',
     feed_title      TEXT,
-    last_fetched_at TEXT
+    last_fetched_at TEXT,
+    etag            TEXT,
+    last_modified   TEXT
 );
 
 CREATE TABLE IF NOT EXISTS episodes (
@@ -92,6 +94,13 @@ CREATE TRIGGER IF NOT EXISTS segments_au AFTER UPDATE ON segments BEGIN
 END;
 """
 
+# Columns added after version 1, by the schema version that introduced them.
+# ``SCHEMA`` above always describes the current version, so a new database
+# needs none of these; an older one gets each missing column added once.
+ADDED_COLUMNS: dict[int, list[tuple[str, str, str]]] = {
+    2: [("shows", "etag", "TEXT"), ("shows", "last_modified", "TEXT")],
+}
+
 
 def _now() -> str:
     return datetime.now(UTC).isoformat(timespec="seconds")
@@ -139,11 +148,28 @@ class Store:
     def _migrate(self) -> None:
         with self.transaction() as conn:
             conn.executescript(SCHEMA)
+            row = conn.execute("SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
+            if row is None:  # new database: SCHEMA is already current
+                conn.execute(
+                    "INSERT INTO meta(key, value) VALUES ('schema_version', ?)",
+                    (str(SCHEMA_VERSION),),
+                )
+                return
+            version = int(row["value"])
+            if version >= SCHEMA_VERSION:
+                return  # a newer database is left untouched; `says doctor` reports it
+            for target in range(version + 1, SCHEMA_VERSION + 1):
+                for table, column, decl in ADDED_COLUMNS.get(target, []):
+                    existing = {r["name"] for r in conn.execute(f"PRAGMA table_info({table})")}
+                    if column not in existing:
+                        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {decl}")
             conn.execute(
-                "INSERT INTO meta(key, value) VALUES ('schema_version', ?) "
-                "ON CONFLICT(key) DO NOTHING",
-                (str(SCHEMA_VERSION),),
+                "UPDATE meta SET value = ? WHERE key = 'schema_version'", (str(SCHEMA_VERSION),)
             )
+
+    def schema_version(self) -> int:
+        row = self.conn.execute("SELECT value FROM meta WHERE key = 'schema_version'").fetchone()
+        return int(row["value"])
 
     # --- shows -----------------------------------------------------------
 
@@ -167,12 +193,31 @@ class Store:
         row = self.conn.execute("SELECT id FROM shows WHERE feed_url = ?", (feed_url,)).fetchone()
         return row["id"] if row else None
 
-    def mark_fetched(self, show_id: int, feed_title: str | None) -> None:
+    def feed_validators(self, show_id: int) -> tuple[str | None, str | None]:
+        """Return the ``(etag, last_modified)`` saved from the last successful fetch."""
+        row = self.conn.execute(
+            "SELECT etag, last_modified FROM shows WHERE id = ?", (show_id,)
+        ).fetchone()
+        return (row["etag"], row["last_modified"]) if row else (None, None)
+
+    def mark_fetched(
+        self,
+        show_id: int,
+        feed_title: str | None,
+        *,
+        etag: str | None = None,
+        last_modified: str | None = None,
+    ) -> None:
+        """Record a successful fetch (200 or 304) and the validators for the next one.
+
+        The validators are replaced as given, so a server that stops sending
+        them stops receiving conditional requests.
+        """
         with self.transaction() as conn:
             conn.execute(
-                "UPDATE shows SET last_fetched_at = ?, feed_title = COALESCE(?, feed_title) "
-                "WHERE id = ?",
-                (_now(), feed_title, show_id),
+                "UPDATE shows SET last_fetched_at = ?, feed_title = COALESCE(?, feed_title), "
+                "etag = ?, last_modified = ? WHERE id = ?",
+                (_now(), feed_title, etag, last_modified, show_id),
             )
 
     # --- episodes --------------------------------------------------------

@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+from says.feeds import FeedResponse
 from says.models import ShowConfig
 from says.store import Store
 
@@ -45,6 +46,12 @@ class FakeFetcher:
         if url in URL_MAP:
             return (FIXTURES / URL_MAP[url]).read_bytes()
         raise RuntimeError(f"404 for {url}")
+
+    def feed(
+        self, url: str, *, etag: str | None = None, last_modified: str | None = None
+    ) -> FeedResponse:
+        """Stand-in for ``feeds.fetch_feed``; always answers 200 with no validators."""
+        return FeedResponse(content=self(url))
 
 
 @pytest.fixture
