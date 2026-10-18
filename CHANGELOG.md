@@ -8,6 +8,14 @@ once it reaches 1.0.
 
 ## [Unreleased]
 
+### Added
+
+- `says doctor`: checks that the config loads, every feed entry has a
+  well-formed http(s) URL, SQLite has FTS5, the database passes
+  `PRAGMA integrity_check` and the FTS5 index matches its content table, the
+  audio cache is writable, and the chosen transcriber's dependency imports.
+  Prints one ok/warn/fail line per check and exits 1 on any failure.
+
 ## [0.1.0] - 2026-10-18
 
 ### Added

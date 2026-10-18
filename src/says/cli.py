@@ -18,6 +18,7 @@ from says.config import (
     parse_opml,
     resolve_config_path,
 )
+from says.doctor import has_failures, run_checks
 from says.export import EXPORTERS, cap_quote
 from says.ingest import import_transcript_file, ingest_show
 from says.models import ShowConfig
@@ -335,6 +336,16 @@ def stats(ctx: typer.Context) -> None:
     with ctx.obj.store() as store:
         for key, value in store.stats().items():
             typer.echo(f"{key:<12} {value}")
+
+
+@app.command()
+def doctor(ctx: typer.Context) -> None:
+    """Check the config, feeds, SQLite FTS5, database integrity, and transcriber setup."""
+    checks = run_checks(ctx.obj.config_path)
+    for check in checks:
+        typer.echo(check.line())
+    if has_failures(checks):
+        raise typer.Exit(1)
 
 
 if __name__ == "__main__":

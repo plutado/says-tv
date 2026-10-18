@@ -129,6 +129,7 @@ Audio is not stored unless the user passes `--keep-audio`.
 | `says search QUERY [filters] [--by-perspective] [--raw]` | Print matching quotes with citations |
 | `says export QUERY [-f markdown\|json] [-o FILE] [--max-chars N] [filters]` | Write cited quotes |
 | `says stats` | Row counts |
+| `says doctor` | Check config, feeds, FTS5, database integrity, audio cache, transcriber; exit 1 on any failure |
 
 Filters shared by `search` and `export`: `--perspective/-p` (repeatable),
 `--show` (repeatable), `--speaker` (substring), `--since YYYY-MM-DD`,
@@ -157,6 +158,7 @@ Per-show link templates are planned (ROADMAP M5).
 | `says.transcribe` | Backend registry and the optional faster-whisper backend |
 | `says.search` | Query building, filters, ranking |
 | `says.export` | Quote capping and Markdown/JSON rendering |
+| `says.doctor` | Read-only environment and database checks for `says doctor` |
 | `says.cli` | Typer commands |
 
 ## Known limitations

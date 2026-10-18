@@ -134,7 +134,13 @@ uv run says export "data center water" --format json --max-chars 200
 # Inspect what is stored
 uv run says episodes
 uv run says stats
+
+# Check the config, feeds, SQLite FTS5, database integrity, and transcriber
+uv run says doctor
 ```
+
+`says doctor` prints one `ok`, `warn`, or `fail` line per check and exits with
+status 1 if any check fails. It never creates or changes the database.
 
 If an episode has no published transcript, you can attach one you have on disk:
 
@@ -181,7 +187,7 @@ Headline milestones, in working hours for one developer:
 
 - **Reliable ingestion of provided transcripts** (12 to 16 h): conditional GET
   and backoff, polite per-host fetching, Atom and untimed text transcripts,
-  a `says doctor` command.
+  a `says doctor` command (done).
 - **Local transcription backends** (14 to 20 h): a fuller faster-whisper
   backend with word timestamps, a whisper.cpp backend, a transcript cache, and
   clear marking of ASR-derived quotes.

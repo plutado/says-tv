@@ -30,7 +30,7 @@ transcription, so they come first.
 - [ ] Atom feed support and common RSS quirks (missing guid, relative URLs) (2 h)
 - [ ] Episode-level transcript language selection (1 h)
 - [ ] Test corpus of malformed synthetic feeds (2 h)
-- [ ] `says doctor` command: config check, FTS5 availability, DB integrity (1 h)
+- [x] `says doctor` command: config check, FTS5 availability, DB integrity (1 h)
 
 ## M2: Local transcription backends (14 to 20 h)
 
