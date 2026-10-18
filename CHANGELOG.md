@@ -8,6 +8,8 @@ once it reaches 1.0.
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-10-18
+
 ### Added
 
 - TOML config with per-show, user-assigned perspective labels and tags; OPML import.
@@ -22,3 +24,6 @@ once it reaches 1.0.
   `search`, `export`, `stats`.
 - Tests over synthetic fixtures; CI running ruff and pytest via uv.
 - Documentation: system design, rights posture, ADRs 0001 to 0004, roadmap.
+
+[Unreleased]: https://github.com/plutado/says-tv/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/plutado/says-tv/releases/tag/v0.1.0

@@ -1,6 +1,6 @@
 [project]
 name = "says"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "Local-first podcast research tool: search who said what, on which episode, at what timestamp."
 readme = "README.md"
 license = "MIT"
